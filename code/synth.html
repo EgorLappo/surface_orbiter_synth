@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Surface Modulation Synth</title>
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+
+  <script type="text/javascript" src="node_modules/socket.io/client-dist/socket.io.min.js"></script>
+  <script src="runners.js"></script>
+  <script src="sketch.js"></script>
+  <script src="input-knobs.js"></script>
+  <script src="node_modules/p5/lib/p5.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+  <link href="main.css" rel="stylesheet" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="row"><div class="col-lg"><h1 class="p-4"> surface synthesizer </h1> </div></div>
+    <div class="row">
+      <div class="col-md">
+        <main>
+      </main>
+      </div>
+
+      <div class="col-md">
+        <div class="row justify-content-start mx-auto">
+          <div class="col-1"><h3>Controls</h3></div>
+        </div>
+        <div class="row justify-content-start mx-auto p-2">
+          <div class="col-6 "><input id="run-chuck" type="button" class="btn" value="Run ChucK"/></div>
+          <div class="col-6 "><input id="rec" type="button" class="btn" value="Start Recording"/></div>
+        </div>
+        <div class="row p-2">
+          <div class="col"><h4>Synth controls</h4></div>
+        </div>
+        <div class="row align-content-start align-items-center  p-2">
+          <div class="col-2 text-center">
+            <input id="osc-gain" type="range" class="input-knob" data-bgcolor="#5f6769" data-fgcolor="#dfcdc3" data-diameter="50" min="0" max="1" step="0.005"/>
+            <br><label class="form-label" for="osc-gain">Gain</label>
+          </div>
+          <div class="col-2 text-center">
+            <input id="osc-width" type="range" class="input-knob" data-bgcolor="#5f6769" data-fgcolor="#dfcdc3" data-diameter="50" min="0" max="1" step="0.005"/>
+            <br><label class="form-label" for="osc-width">Width</label>
+          </div>
+          <div class="col-2 text-center">
+            <input id="filter-freq" type="range" class="input-knob" data-bgcolor="#5f6769" data-fgcolor="#dfcdc3" data-diameter="50" min="60" max="14000" step="1"/>
+            <br><label class="form-label" for="filter-freq">LPF freq.</label>
+          </div>
+          <div class="col-2 text-center">
+            <input id="filter-Q" type="range" class="input-knob" data-bgcolor="#5f6769" data-fgcolor="#dfcdc3" data-diameter="50" min="0.8" max="10" step="0.01"/>
+            <br><label class="form-label" for="filter-Q">LPF Q</label>
+          </div>
+          <div class="col-3 text-center">
+            Waveform:
+            <div id="wvform-group" class="btn-group-vertical btn-group-sm p-2" role="group">
+              <input type="radio" class="btn-check" name="wvform" id="osc-saw" value="0">
+              <label class="btn btn-outline-primary" for="osc-saw">Saw</label>
+
+              <!-- NO DIFFERENCE FROM SAW <input type="radio" class="btn-check" name="wvform" id="osc-tri" value="1">
+              <label class="btn btn-outline-primary" for="osc-tri">Triangle</label> --->
+
+              <input type="radio" class="btn-check" name="wvform" id="osc-sqr" value="2">
+              <label class="btn btn-outline-primary" for="osc-sqr">Square</label>
+            </div>
+          </div>
+        </div>
+        <div class="row p-2">
+          <div class="col"><h4>Runner controls</h4></div>
+        </div>
+        <div class="row align-content-start p-2 ">
+          <div class="col-2 text-center">
+            <input id="runner-angle" type="range" class="input-knob" data-bgcolor="#5f6769" data-fgcolor="#dfcdc3" data-diameter="50" min="-3.1416" max="3.1416" step="0.005"/>
+            <br><label class="form-label" for="runner-angle">Angle</label><br><span class="fw-light small" id="angle_val">0</span>°
+          </div>
+          <div class="col-2 text-center">
+            <input id="angle-random" type="range" class="input-knob" data-bgcolor="#5f6769" data-fgcolor="#dfcdc3" data-diameter="50" min="0" max="1" step="0.005"/>
+            <br><label class="form-label" for="angle-random">Angle spread</label>
+          </div>
+          <div class="col-2 text-center">
+            <input id="runner-speed" type="range" class="input-knob" data-bgcolor="#5f6769" data-fgcolor="#dfcdc3" data-diameter="50" min="0" max="1" step="0.005"/>
+            <br><label class="form-label" for="runner-speed">Speed</label><br><span class="fw-light small">X-BPM: <br> <span id="x-bpm">0</span></span><br><span class="fw-light small">Y-BPM: <br><span id="y-bpm">0</span></span>
+          </div>
+          <div class="col-2 text-center">
+            <input id="speed-random" type="range" class="input-knob" data-bgcolor="#5f6769" data-fgcolor="#dfcdc3" data-diameter="50" min="0" max="1" step="0.005"/>
+            <br><label class="form-label" for="speed-random">Speed spread</label>
+          </div>
+          <div class="col-3 text-center">
+            Surface type:
+            <div id="surface-group" class="btn-group-vertical btn-group-sm p-2" role="group">
+              <input type="radio" class="btn-check" name="surface" id="s-torus" value="0">
+              <label class="btn btn-outline-primary" for="s-torus">Torus</label>
+              <input type="radio" class="btn-check" name="surface" id="s-rp2" value="1">
+              <label class="btn btn-outline-primary" for="s-rp2">Projective plane</label>
+              <input type="radio" class="btn-check" name="surface" id="s-kb" value="2">
+              <label class="btn btn-outline-primary" for="s-kb">Klein Bottle</label>
+            </div>
+          </div>
+        </div>
+        <div class="row p-2">
+          <col-lg><h4>Modulation sends controls</h4></col-lg>
+        </div>
+        <div class="row align-content-start p-2 align-items-center ">
+          <div class="col-2 text-center">
+            <input id="x-send" type="range" class="input-knob" data-bgcolor="#5f6769" data-fgcolor="#dfcdc3" data-diameter="50" min="0" max="1" step="0.005"/>
+            <br><label class="form-label" for="x-send">X-axis amount</label>
+          </div>
+          <div class="col-2 text-center">
+            <input id="x-phase" type="range" class="input-knob" data-bgcolor="#5f6769" data-fgcolor="#dfcdc3" data-diameter="50" min="0" max="6.2831" step="0.005"/>
+            <br><label class="form-label" for="x-phase">X-axis phase</label>
+          </div>
+          <div class="col-3 text-center">
+            X-axis destination:
+            <div id="x-dest-group" class="btn-group-vertical btn-group-sm p-2" role="group">
+              <input type="radio" class="btn-check" name="x-dest" id="x-dest-0" value="0">
+              <label class="btn btn-outline-primary" for="x-dest-0">Gain</label>
+
+              <input type="radio" class="btn-check" name="x-dest" id="x-dest-1" value="1">
+              <label class="btn btn-outline-primary" for="x-dest-1">Pitch</label>
+
+              <input type="radio" class="btn-check" name="x-dest" id="x-dest-2" value="2">
+              <label class="btn btn-outline-primary" for="x-dest-2">Width</label>
+
+              <input type="radio" class="btn-check" name="x-dest" id="x-dest-3" value="3">
+              <label class="btn btn-outline-primary" for="x-dest-3">LPF frequency</label>
+
+              <input type="radio" class="btn-check" name="x-dest" id="x-dest-4" value="4">
+              <label class="btn btn-outline-primary" for="x-dest-4">LPF resonance</label>
+            </div>
+          </div>
+        </div>
+        <div class="row align-content-start align-items-center  p-2">
+          <div class="col-2 text-center">
+            <input id="y-send" type="range" class="input-knob" data-bgcolor="#5f6769" data-fgcolor="#dfcdc3" data-diameter="50" min="0" max="1" step="0.005"/>
+            <br><label class="form-label" for="y-send">Y-axis amount</label>
+          </div>
+          <div class="col-2 text-center">
+            <input id="y-phase" type="range" class="input-knob" data-bgcolor="#5f6769" data-fgcolor="#dfcdc3" data-diameter="50" min="0" max="6.2831" step="0.005"/>
+            <br><label class="form-label" for="y-phase">Y-axis phase</label>
+          </div>
+          <div class="col-3 text-center">
+            Y-axis destination:
+            <div id="y-dest-group" class="btn-group-vertical btn-group-sm p-2" role="group">
+              <input type="radio" class="btn-check" name="y-dest" id="y-dest-0" value="0">
+              <label class="btn btn-outline-primary" for="y-dest-0">Gain</label>
+
+              <input type="radio" class="btn-check" name="y-dest" id="y-dest-1" value="1">
+              <label class="btn btn-outline-primary" for="y-dest-1">Pitch</label>
+
+              <input type="radio" class="btn-check" name="y-dest" id="y-dest-2" value="2">
+              <label class="btn btn-outline-primary" for="y-dest-2">Width</label>
+
+              <input type="radio" class="btn-check" name="y-dest" id="y-dest-3" value="3">
+              <label class="btn btn-outline-primary" for="y-dest-3">LPF frequency</label>
+
+              <input type="radio" class="btn-check" name="y-dest" id="y-dest-4" value="4">
+              <label class="btn btn-outline-primary" for="y-dest-4">LPF resonance</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</body>
+
+</html>

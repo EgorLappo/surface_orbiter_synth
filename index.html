@@ -1,0 +1,126 @@
+<html>
+  <head>
+    <title>
+      Final Project
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container" style="width: 40%">
+      <br><br>
+        <h3>Music 220a Final Project, Spring 2021 
+            <small class="text-muted">surface orbiter synth</small>
+        </h3>
+
+        <p class="lead">Egor Alimpiev</p>
+
+    <h4>Project description</h4>
+
+    <p>
+        For the final project, I have implemented a polyphonic synth with a custom modulation engine based on some simple topoogical concepts. My goal is to create a synth able to create rich polyrhythmic textures with a significant random component. The basic idea is as follows: for each note pressed, a "runner"/"orbiter" is spawned on a 2D square, and this runner starts to move across it, while its x- and y-coordinates determine parameters of the synth patch. The angle of movement and speed can be set, including the degree of randomisation (most interesting when a chord is played). 
+    </p>
+
+    <p>
+      The "topological part" of my project comes into play when the runner reaches the edge of a square. A square can be made into a closed (i.e. boundaryless) surface by identifying the edges in a certain way. Different identifications give different 2D surfaces. For example, one can obtain a <b>torus</b> via the following identification: <br>
+    </p><br>
+
+      <img src="torus_id.png" class="rounded" style="width: 50%" alt=""><br><br>
+
+    <p>
+      Identifying the edges in a different way, I also provide the <b>projective plane</b> and the <b>Klein bottle</b> as possible surfaces for the runner. A torus can provide an arbitrary ratio between the x- and y-frequencies of the runner, based on the angle. The movement of the runner on a torus is very predictable and reminds of the way arenas were coded in old games (e.g. Asteroids). The projective plane, in turn, makes the runner change direction and shift position on the square, making the trajectory discontinuous (in an appropriate sense), producing interesting rhythmic thumps each time a runner hits a side of the square. Finally, the Klein bottle provides one side just as in a torus, and one side as in the projective plane.
+    </p>
+
+    <p>
+      I was initially inspired by existing <a href="https://www.vectorsynth.com">hardware synth</a> which, even though very impressive, it not at all creative with its basic idea: <br>
+    </p>
+
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/wYdvjUsFPHE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> <br><br>
+
+    <p>
+    My current work is available in the folder <a href="code/">code</a>: <a href="code/run.ck">run.ck</a>, <a href="code/app.js">app.js</a>, <a href="code/sketch.js">sketch.js</a>, etc. <br> <br>
+
+        <img src="synth_screen_2.png" alt="" class="rounded" alt="" style="width: 80%"><br><br>
+    </p>
+
+    <p>
+        Here is a first working demo I recorded with zoom: <br><br>
+    </p>
+
+    <video width="960" height="402" controls>
+        <source src="first_demo.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video> <br> <br> <br>
+
+    <p>
+      Here is a larger final demo explaining most of the features: <br><br>
+    </p>
+
+    <video width="960" height="402" controls>
+        <source src="zoom_0.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video> <br> <br> <br>
+
+    <p>
+      Finally, this is a short song I wrote using the synth. The pads, lead melody, and the arp parts are all created by the synth with various settings. I used Ableton to send MIDI to ChucK via a MIDI bus, and used the recording function to create wav files that I imported back into Ableton for mixing. I was inspired by retrowave music (for example Daniel Deluxe) when writing this. The full Ableton project is here: <a href="final_demo_abl.zip">final_demo_abl.zip</a>.
+    </p> <br>
+
+    <audio controls>
+      <source src="final_demo.wav" type="audio/wav">
+      Your browser does not support the audio element.
+    </audio> <br><br>
+
+    <p>
+        Current features:
+        <ul>
+            <li>MIDI input either via external controller or directly from Ableton through a MIDI bus;</li>
+            <li>You can launch and stop Chuck from the browser; </li>
+            <li>Recording to .wav from browser;</li>
+            <li>Synth controls include: saw or square oscillator, gain, waveform width, LPF frequency and resonance;</li>
+            <li>Speed and angle of the runner can be specified, along with a desired degree of randomization;</li>
+            <li>Three planned surfaces are available;</li>
+            <li>Modulation sources are the x- and y- coordinates, and destinations are: gain, LPF frequency, resonance, waveform width, pitch. Amount of modulation and the phase of modulation can be controlled;</li>
+            <li>For better usability,  the bpm values for x- and y- components of the runner's movement are displayed. As I intend for this instrument to have a chaotic, polyrhythmic, dense, overwhelming feel, I will not implement and sync features or the way to precisely set the bpms.</li>
+        </ul>
+    </p> 
+
+    <br><br>
+
+    <p>
+      How to run the synth on your machine. 
+      <ul>
+        <li>Install ChucK, Node.js.</li>
+        <li>Download the project (<a href="webstorm_project.zip">webstorm_project.zip</a>), open it in WebStorm. (WebStorm is abailable for free with an academic email)</li>
+        <li>Make sure all npm modules required by the project are installed, as listed in the .json file.</li>
+        <li>Look through run.ck, make sure the midi device id is correct, and adjust the master gain as necessary for your machine. </li>
+        <li>With WebStorm, run app.js, view the html in a browser.</li>
+        <li>Play!!</li>
+      </ul>
+    </p>
+
+    <br><br>
+
+    <h6>Notes on implementation and reflections on development process</h6>
+    
+    <p>
+      <ul>
+        
+        <li>
+          The project consists of three parts: a ChucK script that controls the sound, a node.js "server" app that is responsible for global control and communication, and a p5.js front-end part that is responsible for the visualization and GUI. All three are communicating via OSC messages (ChucK with node) or socket.io (node with p5).
+        </li>
+        <li>
+          Here is roughly what happens for each node pressed: a MIDI event is recieved by ChucK, which makes the actual note play as well as send a message to p5 through node (via OSC and socket.io). Upon recieving a "note on" signal p5 spawns/activates a runner that begins its movement. Each active runner sends its (appropriately transformed) x- and y-position back to ChucK, where a separate thread updates the values. Yet another ChucK thread is listening for control messages from node and p5, which include synth patch global controls and changes in modulation destination. 
+        </li>
+        <li>
+          There was a lot of hacking involved (i.e. to switch waveforms on the fly I wrote a new Chugraph) and a lot of OSC/socket.io messages flying around, but so far the network or performance bandwidths have not been hit!
+        </li>
+        <li>
+          On the question of making this publicly available/usable: I know that the fact that I am using the web-oriented frameworks makes us think about hosting this on some server/making this available remotely. However, I don't think that this is reasonable, since I chose the technology based only on what would be the easiest to work with. I think my intended use would be as follows: launching the app via a command line, a browser GUI opens, allowing you to select thew MIDI input channel, as well as the audio destination (via a MIDI bus and an audio router), such that this becomes nothing more than a usual ableton plug-in (one MIDI channel sends MIDI data, and one audio channel recieves audio). 
+        </li>
+      </ul>
+    </p>
+
+    <br><br><br><br>
+
+    </div>
+  </body>
+</html>
